@@ -1,12 +1,25 @@
 language: swift
-osx_image: xcode10.2
+osx_image: xcode11.2
 xcode_project: Static.xcodeproj
 
-script: xcodebuild -scheme "$TRAVIS_XCODE_SCHEME" -sdk "$TRAVIS_XCODE_SDK" -destination "$DESTINATION" test
-
-matrix:
+env:
+   global:
+     - SCHEME="Static-iOS"
+     - IOS_SDK=iphonesimulator13.2
+   
+jobs:
   include:
-    - xcode_scheme: Static-iOS
-      xcode_sdk: iphonesimulator
-      env:
-        - DESTINATION="OS=12.2,name=iPhone X"
+    - stage: unit tests
+      name: iPhone X
+      env: DESTINATION="OS=12.2,name=iPhone X" SDK="$IOS_SDK"
+      script: 
+        - xcodebuild -scheme "$SCHEME" -sdk "$IOS_SDK" -destination "$DESTINATION" test
+        
+    - stage: SPM
+      name: SPM tests
+      script:
+        - swift test -c debug
+
+stages:
+  - unit tests
+  - SPM
